@@ -51,4 +51,72 @@ describe('makeAcls(schema, options)', function () {
       });
     });
   });
+
+  it('should throw error upon schema property conflict', function () {
+    assert.throws(function () {
+      var schema = new mongoose.Schema({
+        // acls is the default property
+        acls: String,
+      });
+
+      makeAcls(schema, { permissionScopes: ['perm1', 'perm2'] });
+    });
+
+    assert.throws(function () {
+      var schema = new mongoose.Schema({
+        prefixedAcls: String,
+      });
+
+      makeAcls(schema, {
+        prefix: 'prefixed',
+        permissionScopes: ['perm1', 'perm2']
+      });
+    });
+
+  });
+
+  it('should throw error upon method name conflict', function () {
+    assert.throws(function () {
+      var schema = new mongoose.Schema();
+
+      schema.methods.verifyPermissions = function () {};
+
+      makeAcls(schema, {
+        permissionScopes: ['perm1', 'perm2']
+      });
+    });
+
+    assert.throws(function () {
+      var schema = new mongoose.Schema();
+
+      schema.methods.grant = function () {};
+
+      makeAcls(schema, {
+        permissionScopes: ['perm1', 'perm2']
+      });
+    });
+
+    assert.throws(function () {
+      var schema = new mongoose.Schema();
+
+      schema.methods.deny = function () {};
+
+      makeAcls(schema, {
+        permissionScopes: ['perm1', 'perm2']
+      });
+    });
+
+  });
+
+  it('should throw error upon static method name conflict', function () {
+    assert.throws(function () {
+      var schema = new mongoose.Schema();
+
+      schema.statics.scopeQueryByPermissions = function () {};
+
+      makeAcls(schema, {
+        permissionScopes: ['perm1', 'perm2']
+      });
+    });
+  });
 });
